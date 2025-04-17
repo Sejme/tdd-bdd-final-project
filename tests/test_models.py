@@ -27,7 +27,7 @@ import os
 import logging
 import unittest
 from decimal import Decimal
-from service.models import Product, Category, db
+from service.models import Product, Category, db, DataValidationError
 from service import app
 from tests.factories import ProductFactory
 DATABASE_URI = os.getenv(
@@ -131,6 +131,12 @@ class TestProductModel(unittest.TestCase):
         products = Product.all()
         self.assertEqual(len(products), 1)
         self.assertEqual(products[0].id, product_id)
+        try:
+            product = ProductFactory()
+            product.id = None
+            product.update()
+        except DataValidationError:
+            pass
 
     def test_delete_a_product(self):
         product = ProductFactory()
@@ -207,3 +213,23 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(found_products.count(), number_of_category)
         for product in found_products:
             self.assertEqual(product.category, category)
+
+    def test_find_by_price(self):
+        products = []
+        for i in range(10):
+            product = ProductFactory()
+            product.create()
+            products.append(product)
+        price = products[0].price
+        count = 0
+        for p in products:
+            if p.price == price:
+                count += 1
+        found_products = Product.find_by_price(price)
+        self.assertEqual(found_products.count(), count)
+        for product in found_products:
+            self.assertEqual(product.price, price)
+        found_products = Product.find_by_price(str(price))
+        self.assertEqual(found_products.count(), count)
+        for product in found_products:
+            self.assertEqual(product.price, price)
