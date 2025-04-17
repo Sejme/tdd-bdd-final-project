@@ -105,4 +105,5 @@ class TestProductModel(unittest.TestCase):
     # ADD YOUR TEST CASES HERE
     #
     def new_test():
+        "ITS working"
         pass
