@@ -190,7 +190,7 @@ class TestProductRoutes(TestCase):
         self.assertEqual(updated_product["description"], "Test")
 
     def test_delete_product(self):
-        product = self._create_products(1)
+        products = self._create_products(1)
         test_product = products[0]
         response = self.client.delete(f"{BASE_URL}/{test_product.id}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -217,7 +217,7 @@ class TestProductRoutes(TestCase):
             if product.name == test_name:
                 count += 1
         response = self.client.get(
-            BASE_URL, query_string=f"name={quote_plus(test_name)}"
+            BASE_URL, query_string=f"name={test_name.replace(' ', '+')}"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -232,7 +232,7 @@ class TestProductRoutes(TestCase):
             if product.category == test_category:
                 count += 1
         response = self.client.get(
-            BASE_URL, query_string=f"category={quote_plus(test_category)}"
+            BASE_URL, query_string=f"category={test_category}"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -241,13 +241,13 @@ class TestProductRoutes(TestCase):
 
     def test_list_by_availability(self):
         products = self._create_products(3)
-        test_aviability = products[0].aviability
+        test_aviability = products[0].available
         count = 0
         for product in products:
-            if product.aviability == test_aviability:
+            if product.available == test_aviability:
                 count += 1
         response = self.client.get(
-            BASE_URL, query_string=f"aviability={quote_plus(test_aviability)}"
+            BASE_URL, query_string=f"available={test_aviability}"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
